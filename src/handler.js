@@ -79,7 +79,7 @@ const addBookHandler = (request, h) => {
   return response;
 };
 
-const getAllBooksHandler = (request, h) => {
+const getAllBooksHandler = async (request, h) => {
   const { name, reading, finished } = request.query;
   if (reading === '1' || reading === '0') {
     if (reading === '1') {
@@ -126,6 +126,51 @@ const getAllBooksHandler = (request, h) => {
       response.code(200);
       return response;
     }
+  } else if (finished === '1' || finished === '0') {
+    if (finished === '1') {
+      const response = h.response({
+        status: 'success',
+        data: {
+          books: books
+            .filter((book) => book.finished === true)
+            .map((book) => ({
+              id: book.id,
+              name: book.name,
+              publisher: book.publisher,
+            })),
+        },
+      });
+      response.code(200);
+      return response;
+    } else if (finished === '0') {
+      const response = h.response({
+        status: 'success',
+        data: {
+          books: books
+            .filter((book) => book.finished !== true)
+            .map((book) => ({
+              id: book.id,
+              name: book.name,
+              publisher: book.publisher,
+            })),
+        },
+      });
+      response.code(200);
+      return response;
+    } else {
+      const response = {
+        status: 'success',
+        data: {
+          books: books.map((book) => ({
+            id: book.id,
+            name: book.name,
+            publisher: book.publisher,
+          })),
+        },
+      };
+      response.code(200);
+      return response;
+    }
   } else if (name === 'Dicoding' || name === 'dicoding') {
     function checkName(book) {
       if (book.name.includes('Dicoding') || book.name.includes('dicoding')) {
@@ -145,7 +190,7 @@ const getAllBooksHandler = (request, h) => {
     });
     response.code(200);
     return response;
-  } else if (!name) {
+  } else if (!name && !reading && !finished) {
     const response = h.response({
       status: 'success',
       data: {
@@ -156,29 +201,9 @@ const getAllBooksHandler = (request, h) => {
         })),
       },
     });
-    const book = books.filter((book) => book.reading === true);
-    console.log(book);
-    console.log(reading);
-    console.log(typeof reading);
     response.code(200);
     return response;
   }
-  // else if (reading === 0) {
-  //   const response = h.response({
-  //     status: 'success',
-  //     data: {
-  //       books: books
-  //         .filter((book) => book.reading === false)
-  //         .map((book) => ({
-  //           id: book.id,
-  //           name: book.name,
-  //           publisher: book.publisher,
-  //         })),
-  //     },
-  //   });
-  //   response.code(200);
-  //   return response;
-  // }
 };
 
 const getBookByIdHandler = (request, h) => {
